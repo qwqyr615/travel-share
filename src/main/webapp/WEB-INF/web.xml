@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <display-name>travelShare</display-name>
+
+    <welcome-file-list>
+        <welcome-file>index</welcome-file>
+    </welcome-file-list>
+
+    <!-- 加载 Spring 核心容器的配置文件 -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:applicationContext.xml</param-value>
+    </context-param>
+
+    <!--配置监听器，在服务器启动时初始化 Spring 容器- 创建容器 -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- 字符编码过滤器 - 确保全是Utf-8 -->
+    <filter>
+        <filter-name>characterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>characterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!--  配置springmvc前端控制器-->
+    <servlet>
+        <servlet-name>springmvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-mvc.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <!-- 开启文件上传支持 -->
+        <multipart-config>
+            <max-file-size>20971520</max-file-size> <!-- 20MB -->
+            <max-request-size>41943040</max-request-size> <!-- 40MB -->
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>springmvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 1. 扫描控制器 -->
+    <context:component-scan base-package="com.zust.se.controller"/>
+    <mvc:annotation-driven/>
+
+    <!-- 2. React 静态资源映射（关键！） -->
+    <mvc:resources mapping="/static/**" location="/static/"/>
+    <mvc:default-servlet-handler/>
+
+    <!-- 3. 视图解析器配置（返回 index.html） -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 设置为最低优先级，让 @RestController 优先 -->
+        <property name="order" value="2147483647"/>
+        <property name="prefix" value="/static/"/>
+        <property name="suffix" value=".html"/>
+    </bean>
+
+    <!-- 5. 配置文件上传（可选） -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>
+
+    <!-- 6. 跨域配置（CORS） -->
+    <mvc:cors>
+        <mvc:mapping path="/api/**"
+                     allowed-origins="http://localhost:8080"
+                     allowed-methods="GET, POST, PUT, DELETE, OPTIONS"
+                     allowed-headers="*"
+                     allow-credentials="true"/>
+    </mvc:cors>
+
+</beans>

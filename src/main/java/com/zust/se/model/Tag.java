@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Tag {
     private Integer id;
-    private String name;
+    private String name;//风景，美食，人物，动物，建筑，其他
 }

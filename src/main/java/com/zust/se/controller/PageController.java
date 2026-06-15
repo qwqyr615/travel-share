@@ -34,17 +34,17 @@ public class PageController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam("login_name") String loginName,
+    public String login(@RequestParam("username") String username,
                         @RequestParam("password") String password,
                         HttpSession session) {
 
-        User user = userService.login(loginName, password);
+        User user = userService.login(username, password);
 
         if (user == null) {
             return "redirect:/login?error=" + encode("用户名或密码错误");
         }
 
-        session.setAttribute("loginUser", user);
+        session.setAttribute("username", user);
         return "redirect:/";
     }
 
@@ -56,13 +56,13 @@ public class PageController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam("reg_name") String regName,
+    public String register(@RequestParam("username") String username,
                            @RequestParam("password") String password,
                            @RequestParam(value = "nickname", required = false) String nickname,
                            @RequestParam(value = "intro", required = false) String intro ) {
 
         User user = new User();
-        user.setUsername(regName);
+        user.setUsername(username);
         user.setPassword(password);
         user.setNickname(nickname);
         user.setIntro(intro);

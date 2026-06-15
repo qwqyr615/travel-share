@@ -10,7 +10,7 @@ public interface UserMapper {
 
     // ========== 注册 & 登录 ==========
     @Insert("INSERT INTO t_user(username, password, nickname, avatar, intro, type, creat_time) " +
-            "VALUES(#{username}, #{password}, #{nickname}, #{avatar}, #{intro}, #{type}, #{creatTime})")
+            "VALUES(#{username}, #{password}, #{nickname}, #{avatar}, #{intro}, #{type}, #{creat_time})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
 

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zust.se.mapper.UserMapper">
+
+    <!-- 动态更新用户信息（昵称、头像、自我介绍） -->
+    <update id="updateInfo" parameterType="com.zust.se.model.User">
+        UPDATE t_user
+        <set>
+            <if test="nickname != null">nickname=#{nickname},</if>
+            <if test="avatar != null">avatar=#{avatar},</if>
+            <if test="intro != null">intro=#{intro},</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <!-- 管理员：查所有用户 -->
+    <select id="findAll" resultType="com.zust.se.model.User">
+        SELECT * FROM t_user ORDER BY creat_time DESC
+    </select>
+
+    <!-- 管理员：删除用户 -->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM t_user WHERE id = #{id}
+    </delete>
+
+</mapper>

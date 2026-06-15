@@ -36,12 +36,12 @@
         <property name="dataSource" ref="dataSource"/>
         <property name="configLocation" value="classpath:mybatis-config.xml"/>
         <!-- 配置别名-->
-        <property name="typeAliasesPackage" value="com.reo.model"/>
+        <property name="typeAliasesPackage" value="com.zust.se.model"/>
     </bean>
 
     <!-- 4. 配置 Mapper 扫描器 -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.reo.mapper"/>
+        <property name="basePackage" value="com.zust.se.mapper"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
 

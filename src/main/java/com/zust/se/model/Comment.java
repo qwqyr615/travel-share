@@ -14,5 +14,5 @@ public class Comment {
     private Integer id;
     private Integer post_id; //游记的id
     private Integer user_id;
-    private Date create_id;
+    private Date create_time;
 }

@@ -10,6 +10,9 @@
        http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <!-- 0. 加载配置文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
     <!-- 1. 扫描业务层 Service 和 持久层 Mapper -->
     <context:component-scan base-package="com.zust.se.service,com.zust.se.mapper"/>
 

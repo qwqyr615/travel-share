@@ -28,19 +28,15 @@ public interface UserMapper {
                        @Param("newPassword") String newPassword);
 
     // ========== 修改个人信息 ==========
-    @Update("UPDATE t_user SET nickname = #{nickname}, avatar = #{avatar}, intro = #{intro} WHERE id = #{id}")
     int updateInfo(User user);
 
     // ========== 管理员 ==========
-    @Select("SELECT * FROM t_user")
     List<User> findAll();
 
-    @Select("SELECT * FROM t_user LIMIT #{offset}, #{size}")
-    List<User> findByPage(@Param("offset") int offset, @Param("size") int size);
+    //List<User> findByPage(@Param("offset") int offset, @Param("size") int size);
 
     @Select("SELECT COUNT(*) FROM t_user")
     int countAll();
 
-    @Delete("DELETE FROM t_user WHERE id = #{id}")
     int deleteById(Integer id);
 }

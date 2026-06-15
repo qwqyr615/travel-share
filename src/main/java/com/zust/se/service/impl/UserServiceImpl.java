@@ -140,13 +140,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.findAll();
     }
 
-    @Override
-    public List<User> findByPage(int page, int size) {
-        if (page < 1) page = 1;
-        if (size < 1 || size > 100) size = 10;
-        int offset = (page - 1) * size;
-        return userMapper.findByPage(offset, size);
-    }
+//    @Override
+//    public List<User> findByPage(int page, int size) {
+//        if (page < 1) page = 1;
+//        if (size < 1 || size > 100) size = 10;
+//        int offset = (page - 1) * size;
+//        return userMapper.findByPage(offset, size);
+//    }
 
     @Override
     public int countAll() {

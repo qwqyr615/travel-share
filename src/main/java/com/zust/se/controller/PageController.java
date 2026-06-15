@@ -58,12 +58,14 @@ public class PageController {
     @PostMapping("/register")
     public String register(@RequestParam("reg_name") String regName,
                            @RequestParam("password") String password,
-                           @RequestParam(value = "nickname", required = false) String nickname) {
+                           @RequestParam(value = "nickname", required = false) String nickname,
+                           @RequestParam(value = "intro", required = false) String intro ) {
 
         User user = new User();
         user.setUsername(regName);
         user.setPassword(password);
         user.setNickname(nickname);
+        user.setIntro(intro);
 
         int result = userService.register(user);
 

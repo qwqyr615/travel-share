@@ -25,7 +25,7 @@ public interface UserService {
     List<User> findAll();
 
     /** 管理员：分页查询用户 */
-    List<User> findByPage(int page, int size);
+    //List<User> findByPage(int page, int size);
 
     /** 管理员：统计用户总数 */
     int countAll();

@@ -1,4 +1,4 @@
-﻿package com.zust.se.service.impl;
+package com.zust.se.service.impl;
 
 import com.zust.se.mapper.UserMapper;
 import com.zust.se.model.User;
@@ -22,33 +22,29 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public int register(User user) {
         if (user == null || isBlank(user.getUsername()) || isBlank(user.getPassword())) {
-            return -1; // 参数不合法
+            return -1;
         }
 
-        // 用户名长度校验
         String username = user.getUsername().trim();
         if (username.length() < 3 || username.length() > 20) {
-            return -1; // 用户名长度 3-20 位
+            return -1;
         }
 
-        // 密码长度校验
         if (user.getPassword().length() < 6 || user.getPassword().length() > 32) {
-            return -1; // 密码长度 6-32 位
+            return -1;
         }
 
-        // 检查用户名是否已存在
         User exist = userMapper.findByUsername(username);
         if (exist != null) {
-            return 0; // 用户名已被占用
+            return 0;
         }
 
-        // 设置默认值
         user.setUsername(username);
         if (isBlank(user.getNickname())) {
-            user.setNickname(username); // 默认昵称=用户名
+            user.setNickname(username);
         }
         if (user.getType() == null) {
-            user.setType((byte) 0); // 默认普通用户
+            user.setType((byte) 0);
         }
         if (user.getCreat_time() == null) {
             user.setCreat_time(new Date());
@@ -67,15 +63,13 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.findByUsername(username.trim());
         if (user == null) {
-            return null; // 用户不存在
+            return null;
         }
 
-        // 密码校验
         if (!password.equals(user.getPassword())) {
-            return null; // 密码错误
+            return null;
         }
 
-        // 清除敏感信息后再返回
         user.setPassword(null);
         return user;
     }
@@ -103,11 +97,11 @@ public class UserServiceImpl implements UserService {
         }
 
         if (newPassword.length() < 6 || newPassword.length() > 32) {
-            return 0; // 新密码长度不合法
+            return 0;
         }
 
         if (oldPassword.equals(newPassword)) {
-            return 0; // 新旧密码不能相同
+            return 0;
         }
 
         return userMapper.updatePassword(id, oldPassword, newPassword);
@@ -121,21 +115,19 @@ public class UserServiceImpl implements UserService {
             return 0;
         }
 
-        // 昵称校验
         if (user.getNickname() != null) {
             String nickname = user.getNickname().trim();
             if (nickname.isEmpty()) {
                 return 0;
             }
             if (nickname.length() > 30) {
-                return 0; // 昵称最长30字
+                return 0;
             }
             user.setNickname(nickname);
         }
 
-        // 简介校验
         if (user.getIntro() != null && user.getIntro().length() > 200) {
-            return 0; // 简介最长200字
+            return 0;
         }
 
         return userMapper.updateInfo(user);
@@ -148,13 +140,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.findAll();
     }
 
-//    @Override
-//    public List<User> findByPage(int page, int size) {
-//        if (page < 1) page = 1;
-//        if (size < 1 || size > 100) size = 10;
-//        int offset = (page - 1) * size;
-//        return userMapper.findByPage(offset, size);
-//    }
+    @Override
+    public List<User> findByPage(int page, int size) {
+        if (page < 1) page = 1;
+        if (size < 1 || size > 100) size = 10;
+        int offset = (page - 1) * size;
+        return userMapper.findByPage(offset, size);
+    }
 
     @Override
     public int countAll() {

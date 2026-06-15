@@ -1,4 +1,4 @@
-﻿package com.zust.se.mapper;
+package com.zust.se.mapper;
 
 import com.zust.se.model.Comment;
 import org.apache.ibatis.annotations.*;

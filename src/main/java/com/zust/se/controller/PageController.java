@@ -138,7 +138,6 @@ public class PageController {
         return "forward:/static/index.html";
     }
 
-    // ==================== 工具方法 ====================
 
     private boolean isAdmin(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");

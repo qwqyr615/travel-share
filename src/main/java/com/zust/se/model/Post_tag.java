@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 //游记-标签关联表
-public class post_tag {
+public class Post_tag {
     private Integer post_id;
     private Integer tag_id;
 }

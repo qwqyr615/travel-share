@@ -18,6 +18,9 @@
     <mvc:resources mapping="/static/**" location="/static/"/>
     <mvc:default-servlet-handler/>
 
+    <!-- 传输文件-->
+    <mvc:resources mapping="/uploads/**" location="/uploads/"/>
+
     <!-- 3. 视图解析器配置（返回 index.html） -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <!-- 设置为最低优先级，让 @RestController 优先 -->

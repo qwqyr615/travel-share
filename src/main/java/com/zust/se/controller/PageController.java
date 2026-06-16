@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * 页面路由控制器
@@ -51,7 +55,7 @@ public class PageController {
             return "redirect:/login?error=" + encode("用户名或密码错误");
         }
 
-        session.setAttribute("User", user);
+        session.setAttribute("loginUser", user);
         return "redirect:/";
     }
 
@@ -68,16 +72,46 @@ public class PageController {
     public String register(@RequestParam("username") String username,
                            @RequestParam("password") String password,
                            @RequestParam(value = "nickname", required = false) String nickname,
-                           @RequestParam(value = "avator", required = false) String avatar,
+                           @RequestParam(value = "avatar", required = false) MultipartFile avatar,
                            @RequestParam(value = "intro", required = false) String intro) {
 
+        // 1. 先处理头像上传
+        String avatarPath = null;
+        if (avatar != null && !avatar.isEmpty()) {
+            // 校验文件类型
+            String originalName = avatar.getOriginalFilename();
+            String suffix = "";
+            if (originalName != null && originalName.contains(".")) {
+                suffix = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
+            }
+            if (!suffix.matches("\\.(jpg|jpeg|png|gif|webp)$")) {
+                return "redirect:/register?error=" + encode("头像仅支持 jpg/png/gif/webp 格式");
+            }
+            // 校验大小（2MB）
+            if (avatar.getSize() > 2 * 1024 * 1024) {
+                return "redirect:/register?error=" + encode("头像不能超过 2MB");
+            }
+            // 存盘
+            try {
+                String fileName = UUID.randomUUID().toString() + suffix;
+                File saveDir = new File("src/main/webapp/uploads/avatars/");
+                if (!saveDir.exists()) saveDir.mkdirs();
+                avatar.transferTo(new File(saveDir, fileName));
+                avatarPath = "/uploads/avatars/" + fileName;
+            } catch (IOException e) {
+                return "redirect:/register?error=" + encode("头像上传失败");
+            }
+        }
+
+        // 2. 构建用户对象
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
         user.setNickname(nickname);
         user.setIntro(intro);
+        user.setAvatar(avatarPath);
 
-
+        // 3. 注册
         int result = userService.register(user);
 
         if (result == -1) {
@@ -103,8 +137,8 @@ public class PageController {
     /** 个人主页：我的游记 / 收藏 / 信息编辑 */
     @GetMapping("/profile")
     public String profilePage(HttpSession session) {
-        User username = (User) session.getAttribute("username");
-        if (username == null) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
             return "redirect:/login?error=" + encode("请先登录");
         }
         return "forward:/static/index.html";

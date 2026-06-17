@@ -17,26 +17,33 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+/**
+ * 页面路由控制器
+ * - GET  → 转发到 React SPA，由客户端 React Router 渲染页面
+ * - POST → 处理表单提交，重定向时通过 URL query 传递结果信息
+ */
 @Controller
 public class PageController {
 
     @Autowired
     private UserService userService;
 
-    // ==================== 主页 ====================
+    // ==================== 首页 ====================
 
     @RequestMapping({"/", "/index", "/index.html"})
     public String index() {
         return "forward:/static/index.html";
     }
 
-    // ==================== Login ====================
+    // ==================== 登入 ====================
 
+    /** 登入页面（GET） */
     @GetMapping("/login")
     public String loginPage() {
         return "forward:/static/index.html";
     }
 
+    /** 登入表单提交（POST） */
     @PostMapping("/login")
     public String login(@RequestParam("username") String username,
                         @RequestParam("password") String password,
@@ -45,20 +52,22 @@ public class PageController {
         User user = userService.login(username, password);
 
         if (user == null) {
-            return "redirect:/login?error=" + encode("username or password incorrect");
+            return "redirect:/login?error=" + encode("用户名或密码错误");
         }
 
         session.setAttribute("loginUser", user);
         return "redirect:/";
     }
 
-    // ==================== Register ====================
+    // ==================== 注册 ====================
 
+    /** 注册页面（GET） */
     @GetMapping("/register")
     public String registerPage() {
         return "forward:/static/index.html";
     }
 
+    /** 注册表单提交（POST） */
     @PostMapping("/register")
     public String register(@RequestParam("username") String username,
                            @RequestParam("password") String password,
@@ -66,21 +75,23 @@ public class PageController {
                            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
                            @RequestParam(value = "intro", required = false) String intro) {
 
+        // 1. 先处理头像上传
         String avatarPath = null;
         if (avatar != null && !avatar.isEmpty()) {
+            // 校验文件类型
             String originalName = avatar.getOriginalFilename();
             String suffix = "";
             if (originalName != null && originalName.contains(".")) {
                 suffix = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
             }
             if (!suffix.matches("\\.(jpg|jpeg|png|gif|webp)$")) {
-                return "redirect:/register?error=" + encode("avatar only supports jpg/png/gif/webp");
+                return "redirect:/register?error=" + encode("头像仅支持 jpg/png/gif/webp 格式");
             }
-            // Validate size (20MB)
-            if (avatar.getSize() > 20 * 1024 * 1024) {
-                return "redirect:/register?error=" + encode("avatar size exceeds 20MB");
+            // 校验大小（2MB）
+            if (avatar.getSize() > 2 * 1024 * 1024) {
+                return "redirect:/register?error=" + encode("头像不能超过 2MB");
             }
-            // Save to disk
+            // 存盘
             try {
                 String fileName = UUID.randomUUID().toString() + suffix;
                 File saveDir = new File("src/main/webapp/uploads/avatars/");
@@ -88,10 +99,11 @@ public class PageController {
                 avatar.transferTo(new File(saveDir, fileName));
                 avatarPath = "/uploads/avatars/" + fileName;
             } catch (IOException e) {
-                return "redirect:/register?error=" + encode("avatar upload failed");
+                return "redirect:/register?error=" + encode("头像上传失败");
             }
         }
 
+        // 2. 构建用户对象
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
@@ -99,19 +111,20 @@ public class PageController {
         user.setIntro(intro);
         user.setAvatar(avatarPath);
 
+        // 3. 注册
         int result = userService.register(user);
 
         if (result == -1) {
-            return "redirect:/register?error=" + encode("invalid registration info");
+            return "redirect:/register?error=" + encode("注册信息不合法，请检查输入");
         }
         if (result == 0) {
-            return "redirect:/register?error=" + encode("username already taken");
+            return "redirect:/register?error=" + encode("用户名已被占用");
         }
 
-        return "redirect:/login?success=" + encode("register success, please login");
+        return "redirect:/login?success=" + encode("注册成功，请登录");
     }
 
-    // ==================== Logout ====================
+    // ==================== 退出登录 ====================
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
@@ -119,48 +132,51 @@ public class PageController {
         return "redirect:/login";
     }
 
-    // ==================== Profile ====================
+    // ==================== 个人主页 ====================
 
+    /** 个人主页：我的游记 / 收藏 / 信息编辑 */
     @GetMapping("/profile")
     public String profilePage(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login?error=" + encode("please login first");
+            return "redirect:/login?error=" + encode("请先登录");
         }
         return "forward:/static/index.html";
     }
 
-    // ==================== Admin: Destinations ====================
+    // ==================== 管理员：目的地管理 ====================
 
+    /** 目的地管理：表格 + 增删改 */
     @GetMapping("/admin/destinations")
     public String adminDestinationsPage(HttpSession session) {
         if (!isAdmin(session)) {
-            return "redirect:/login?error=" + encode("admin only");
+            return "redirect:/login?error=" + encode("需要管理员权限");
         }
         return "forward:/static/index.html";
     }
 
-    // ==================== Admin: Tags ====================
+    // ==================== 管理员：标签管理 ====================
 
+    /** 标签管理：列表 + 增删 */
     @GetMapping("/admin/tags")
     public String adminTagsPage(HttpSession session) {
         if (!isAdmin(session)) {
-            return "redirect:/login?error=" + encode("admin only");
+            return "redirect:/login?error=" + encode("需要管理员权限");
         }
         return "forward:/static/index.html";
     }
 
-    // ==================== Admin: catch-all ====================
+    // ==================== 管理员：其他管理页通配 ====================
 
     @GetMapping("/admin/**")
     public String adminCatchAll(HttpSession session) {
         if (!isAdmin(session)) {
-            return "redirect:/login?error=" + encode("admin only");
+            return "redirect:/login?error=" + encode("需要管理员权限");
         }
         return "forward:/static/index.html";
     }
 
-    // ==================== SPA fallback ====================
+    // ==================== SPA 兜底路由 ====================
 
     @RequestMapping({
         "/{segment:^(?!api$)(?!static$)[^\\.]+}",
@@ -170,7 +186,7 @@ public class PageController {
         return "forward:/static/index.html";
     }
 
-    // ==================== Helpers ====================
+    // ==================== 工具方法 ====================
 
     private boolean isAdmin(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");

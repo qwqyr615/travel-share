@@ -17,4 +17,5 @@ public class Destination {
     private String province;
     private String cover_image; //封面图
     private Date creat_time;
+    private String description;
 }

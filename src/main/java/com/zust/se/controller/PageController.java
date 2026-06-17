@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -87,19 +89,24 @@ public class PageController {
             if (!suffix.matches("\\.(jpg|jpeg|png|gif|webp)$")) {
                 return "redirect:/register?error=" + encode("头像仅支持 jpg/png/gif/webp 格式");
             }
-            // 校验大小（2MB）
-            if (avatar.getSize() > 2 * 1024 * 1024) {
-                return "redirect:/register?error=" + encode("头像不能超过 2MB");
+            // 校验大小（20MB）
+            if (avatar.getSize() > 20 * 1024 * 1024) {
+                return "redirect:/register?error=" + encode("头像不能超过 20MB");
             }
             // 存盘
             try {
                 String fileName = UUID.randomUUID().toString() + suffix;
-                File saveDir = new File("src/main/webapp/uploads/avatars/");
+                // 用 ServletContext 获取真实路径，避免相对路径问题
+                String realPath = System.getProperty("user.dir") + "/src/main/webapp/uploads/avatars/";
+                File saveDir = new File(realPath);
                 if (!saveDir.exists()) saveDir.mkdirs();
-                avatar.transferTo(new File(saveDir, fileName));
+                File dest = new File(saveDir, fileName);
+                Files.copy(avatar.getInputStream(), dest.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
                 avatarPath = "/uploads/avatars/" + fileName;
             } catch (IOException e) {
-                return "redirect:/register?error=" + encode("头像上传失败");
+                e.printStackTrace();
+                return "redirect:/register?error=" + encode("头像上传失败: " + e.getMessage());
             }
         }
 

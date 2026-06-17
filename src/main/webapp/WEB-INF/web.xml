@@ -21,8 +21,7 @@
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
-
-    <!-- 字符编码过滤器 - 确保全是Utf-8 -->
+<!-- 字符编码过滤器 - 确保全是Utf-8 -->
     <filter>
         <filter-name>characterEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>

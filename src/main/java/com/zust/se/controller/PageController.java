@@ -1,6 +1,7 @@
 package com.zust.se.controller;
 
 import com.zust.se.model.User;
+import com.zust.se.service.FileService;
 import com.zust.se.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 /**
  * 页面路由控制器
@@ -27,6 +25,9 @@ public class PageController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private FileService fileService;
 
     // ==================== 首页 ====================
 
@@ -75,31 +76,13 @@ public class PageController {
                            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
                            @RequestParam(value = "intro", required = false) String intro) {
 
-        // 1. 先处理头像上传
+        // 1. 上传头像
         String avatarPath = null;
         if (avatar != null && !avatar.isEmpty()) {
-            // 校验文件类型
-            String originalName = avatar.getOriginalFilename();
-            String suffix = "";
-            if (originalName != null && originalName.contains(".")) {
-                suffix = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
-            }
-            if (!suffix.matches("\\.(jpg|jpeg|png|gif|webp)$")) {
-                return "redirect:/register?error=" + encode("头像仅支持 jpg/png/gif/webp 格式");
-            }
-            // 校验大小（2MB）
-            if (avatar.getSize() > 2 * 1024 * 1024) {
-                return "redirect:/register?error=" + encode("头像不能超过 2MB");
-            }
-            // 存盘
             try {
-                String fileName = UUID.randomUUID().toString() + suffix;
-                File saveDir = new File("src/main/webapp/uploads/avatars/");
-                if (!saveDir.exists()) saveDir.mkdirs();
-                avatar.transferTo(new File(saveDir, fileName));
-                avatarPath = "/uploads/avatars/" + fileName;
-            } catch (IOException e) {
-                return "redirect:/register?error=" + encode("头像上传失败");
+                avatarPath = fileService.upload(avatar, "avatars");
+            } catch (Exception e) {
+                return "redirect:/register?error=" + encode("头像上传失败: " + e.getMessage());
             }
         }
 

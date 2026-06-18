@@ -17,13 +17,13 @@ public interface DestinationMapper {
 
     // 新增（返回自增ID）
     @Insert("INSERT INTO t_destination(name, fanme, city, province, cover_image, description) " +
-            "VALUES(#{name}, #{fanme}, #{city}, #{province}, #{coverImage}, #{description})")
+            "VALUES(#{name}, #{fanme}, #{city}, #{province}, #{cover_image}, #{description})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Destination destination);
 
     // 更新
     @Update("UPDATE t_destination SET name=#{name}, fanme=#{fanme}, city=#{city}, " +
-            "province=#{province}, cover_image=#{coverImage}, description=#{description} " +
+            "province=#{province}, cover_image=#{cover_image}, description=#{description} " +
             "WHERE id=#{id}")
     int update(Destination destination);
 

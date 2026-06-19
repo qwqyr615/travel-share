@@ -2,14 +2,13 @@ package com.zust.se.controller;
 
 import com.zust.se.model.Comment;
 import com.zust.se.model.User;
+import com.zust.se.common.Result;
 import com.zust.se.service.CommentService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/comment")
@@ -18,113 +17,58 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    // ==================== 发表评论 / 回复 ====================
-
-    /**
-     * 发表评论（顶级评论或回复）
-     * parentId 为 null 或 0 表示顶级评论，否则为回复
-     */
     @PostMapping("/publish")
-    public Map<String, Object> publish(@RequestBody Comment comment,
-                                       HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-
+    public Result<Comment> publish(@RequestBody Comment comment,
+                                   HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            result.put("code", 401);
-            result.put("msg", "请先登录");
-            return result;
+            return Result.error(401, "请先登录");
         }
-
         comment.setUserId(loginUser.getId());
-
         Comment saved = commentService.publish(comment);
         if (saved == null) {
-            result.put("code", 400);
-            result.put("msg", "评论发表失败，请检查内容");
-            return result;
+            return Result.error(400, "评论发表失败，请检查内容");
         }
-
-        result.put("code", 200);
-        result.put("msg", "发表成功");
-        result.put("data", saved);
-        return result;
+        return Result.success(saved);
     }
-
-    // ==================== 查看评论列表 ====================
 
     @GetMapping("/list/{postId}")
-    public Map<String, Object> list(@PathVariable Integer postId) {
-        Map<String, Object> result = new HashMap<>();
-
+    public Result<List<Comment>> list(@PathVariable Integer postId) {
         List<Comment> comments = commentService.listByPostId(postId);
-        result.put("code", 200);
-        result.put("msg", "查询成功");
-        result.put("data", comments);
-        return result;
+        return Result.success(comments);
     }
-
-    // ==================== 评论总数 ====================
 
     @GetMapping("/count/{postId}")
-    public Map<String, Object> count(@PathVariable Integer postId) {
-        Map<String, Object> result = new HashMap<>();
+    public Result<Integer> count(@PathVariable Integer postId) {
         int count = commentService.countByPostId(postId);
-        result.put("code", 200);
-        result.put("msg", "查询成功");
-        result.put("data", count);
-        return result;
+        return Result.success(count);
     }
-
-    // ==================== 用户删除评论 ====================
 
     @DeleteMapping("/delete/{commentId}")
-    public Map<String, Object> delete(@PathVariable Integer commentId,
-                                      HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-
+    public Result<Void> delete(@PathVariable Integer commentId,
+                               HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            result.put("code", 401);
-            result.put("msg", "请先登录");
-            return result;
+            return Result.error(401, "请先登录");
         }
-
         int rows = commentService.delete(commentId, loginUser.getId());
         if (rows == 0) {
-            result.put("code", 403);
-            result.put("msg", "删除失败，无权限或评论不存在");
-            return result;
+            return Result.error(403, "删除失败，无权限或评论不存在");
         }
-
-        result.put("code", 200);
-        result.put("msg", "删除成功");
-        return result;
+        return Result.success("删除成功");
     }
 
-    // ==================== 管理员删除评论 ====================
-
     @DeleteMapping("/admin/delete/{commentId}")
-    public Map<String, Object> adminDelete(@PathVariable Integer commentId,
-                                           HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-
+    public Result<Void> adminDelete(@PathVariable Integer commentId,
+                                    HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null || loginUser.getType() == null || loginUser.getType() != 1) {
-            result.put("code", 403);
-            result.put("msg", "需要管理员权限");
-            return result;
+            return Result.error(403, "需要管理员权限");
         }
-
         int rows = commentService.deleteByAdmin(commentId);
         if (rows == 0) {
-            result.put("code", 404);
-            result.put("msg", "评论不存在");
-            return result;
+            return Result.error(404, "评论不存在");
         }
-
-        result.put("code", 200);
-        result.put("msg", "删除成功");
-        return result;
+        return Result.success("删除成功");
     }
 }

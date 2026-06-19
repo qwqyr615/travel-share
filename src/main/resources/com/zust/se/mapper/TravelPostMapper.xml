@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zust.se.mapper.TravelPostMapper">
+    <sql id="postColumns">
+        p.id, p.title, p.summary, p.content, p.cover_image,
+    p.user_id, p.destination_id, p.travel_days, p.travel_date,
+    p.budget, p.view_count, p.status, p.created_at, p.updated_at
+    </sql>
+<!-- 查询游记列表   -->
+    <select id="findByCondition" resultType="com.zust.se.model.Post">
+        SELECT <include refid="postColumns"/>
+        FROM t_travel_post p
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (p.title LIKE CONCAT('%', #{keyword}, '%')
+                OR p.summary LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="destination_id != null">
+                AND p.destination_id = #{destination_id}
+            </if>
+            <if test="status != null and status != ''">
+                AND p.status = #{status}
+            </if>
+            <if test="tag_id != null">
+                AND p.id IN (SELECT post_id FROM t_post_tag WHERE tag_id = #{tag_id})
+            </if>
+        </where>
+        ORDER BY p.created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+<!-- 查总数（分页用）   -->
+    <select id="countByCondition" resultType="int">
+        SELECT COUNT(*)
+        FROM t_travel_post p
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (p.title LIKE CONCAT('%', #{keyword}, '%')
+                OR p.summary LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="destination_id != null">
+                AND p.destination_id = #{destination_id}
+            </if>
+            <if test="status != null and status != ''">
+                AND p.status = #{status}
+            </if>
+            <if test="tag_id != null">
+                AND p.id IN (SELECT post_id FROM t_post_tag WHERE tag_id = #{tag_id})
+            </if>
+        </where>
+    </select>
+
+</mapper>

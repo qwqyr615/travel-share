@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -8,6 +8,8 @@
         <id property="id" column="id"/>
         <result property="postId" column="post_id"/>
         <result property="userId" column="user_id"/>
+        <result property="content" column="content"/>
+        <result property="parentId" column="parent_id"/>
         <result property="createTime" column="create_time"/>
         <association property="user" javaType="com.zust.se.model.User">
             <result property="nickname" column="nickname"/>
@@ -15,14 +17,34 @@
         </association>
     </resultMap>
 
-    <!-- 查询某游记的评论（带用户昵称和头像） -->
+    <!-- 查询某游记的所有评论（带用户昵称和头像） -->
     <select id="findByPostIdWithUser" resultMap="commentWithUserMap">
-        SELECT c.id, c.post_id, c.user_id, c.create_time,
+        SELECT c.id, c.post_id, c.user_id, c.content, c.parent_id, c.create_time,
                u.nickname, u.avatar
         FROM t_comment c
         LEFT JOIN t_user u ON c.user_id = u.id
         WHERE c.post_id = #{postId}
         ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 查询某游记的顶级评论（带用户信息） -->
+    <select id="findTopLevelWithUser" resultMap="commentWithUserMap">
+        SELECT c.id, c.post_id, c.user_id, c.content, c.parent_id, c.create_time,
+               u.nickname, u.avatar
+        FROM t_comment c
+        LEFT JOIN t_user u ON c.user_id = u.id
+        WHERE c.post_id = #{postId} AND c.parent_id IS NULL
+        ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 查询某评论的回复列表（带用户信息） -->
+    <select id="findRepliesWithUser" resultMap="commentWithUserMap">
+        SELECT c.id, c.post_id, c.user_id, c.content, c.parent_id, c.create_time,
+               u.nickname, u.avatar
+        FROM t_comment c
+        LEFT JOIN t_user u ON c.user_id = u.id
+        WHERE c.parent_id = #{parentId}
+        ORDER BY c.create_time ASC
     </select>
 
     <!-- 查询某用户的所有评论（带游记标题，用于个人中心） -->

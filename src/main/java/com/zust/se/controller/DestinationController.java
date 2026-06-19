@@ -1,4 +1,4 @@
-package com.zust.se.controller.your;
+package com.zust.se.controller;
 
 import com.zust.se.common.Result;
 import com.zust.se.model.Destination;

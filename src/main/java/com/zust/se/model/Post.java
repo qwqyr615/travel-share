@@ -17,7 +17,7 @@ public class Post {
     private String summary;
     private String content;
     private String cover_image;//-----封面图路径
-    private Integer user_id;
+    private List<> images//    private Integer user_id;
     private Integer destination_id;
     private Integer travel_days;
     private Date travel_date;//-----出发日期

@@ -11,8 +11,8 @@ public interface CommentMapper {
 
     // ========== 增删 ==========
 
-    @Insert("INSERT INTO t_comment(post_id, user_id, create_time) " +
-            "VALUES(#{postId}, #{userId}, #{createTime})")
+    @Insert("INSERT INTO t_comment(post_id, user_id, content, parent_id, create_time) " +
+            "VALUES(#{postId}, #{userId}, #{content}, #{parentId}, #{createTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Comment comment);
 
@@ -26,6 +26,9 @@ public interface CommentMapper {
     @Delete("DELETE FROM t_comment WHERE post_id = #{postId}")
     int deleteByPostId(Integer postId);
 
+    @Delete("DELETE FROM t_comment WHERE parent_id = #{parentId}")
+    int deleteByParentId(Integer parentId);
+
     // ========== 查询 ==========
 
     @Select("SELECT * FROM t_comment WHERE id = #{id}")
@@ -33,6 +36,12 @@ public interface CommentMapper {
 
     @Select("SELECT * FROM t_comment WHERE post_id = #{postId} ORDER BY create_time DESC")
     List<Comment> findByPostId(Integer postId);
+
+    @Select("SELECT * FROM t_comment WHERE post_id = #{postId} AND parent_id IS NULL ORDER BY create_time DESC")
+    List<Comment> findTopLevelByPostId(Integer postId);
+
+    @Select("SELECT * FROM t_comment WHERE parent_id = #{parentId} ORDER BY create_time ASC")
+    List<Comment> findRepliesByParentId(Integer parentId);
 
     @Select("SELECT COUNT(*) FROM t_comment WHERE post_id = #{postId}")
     int countByPostId(Integer postId);
@@ -44,6 +53,9 @@ public interface CommentMapper {
 
     List<Comment> findByPostIdWithUser(Integer postId);
 
-    List<Map<String, Object>> findByUserIdWithPost(Integer userId);
+    List<Comment> findTopLevelWithUser(Integer postId);
 
+    List<Comment> findRepliesWithUser(Integer parentId);
+
+    List<Map<String, Object>> findByUserIdWithPost(Integer userId);
 }

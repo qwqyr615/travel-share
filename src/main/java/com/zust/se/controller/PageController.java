@@ -1,33 +1,19 @@
 package com.zust.se.controller;
 
 import com.zust.se.model.User;
-import com.zust.se.service.FileService;
-import com.zust.se.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 页面路由控制器
- * - GET  → 转发到 React SPA，由客户端 React Router 渲染页面
- * - POST → 处理表单提交，重定向时通过 URL query 传递结果信息
+ * 页面路由控制器：所有 GET 请求转发到 React SPA，由前端 React Router 渲染
  */
 @Controller
 public class PageController {
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private FileService fileService;
 
     // ==================== 首页 ====================
 
@@ -36,75 +22,18 @@ public class PageController {
         return "forward:/static/index.html";
     }
 
-    // ==================== 登入 ====================
+    // ==================== 登录 ====================
 
-    /** 登入页面（GET） */
     @GetMapping("/login")
     public String loginPage() {
         return "forward:/static/index.html";
     }
 
-    /** 登入表单提交（POST） */
-    @PostMapping("/login")
-    public String login(@RequestParam("username") String username,
-                        @RequestParam("password") String password,
-                        HttpSession session) {
-
-        User user = userService.login(username, password);
-
-        if (user == null) {
-            return "redirect:/login?error=" + encode("用户名或密码错误");
-        }
-
-        session.setAttribute("loginUser", user);
-        return "redirect:/";
-    }
-
     // ==================== 注册 ====================
 
-    /** 注册页面（GET） */
     @GetMapping("/register")
     public String registerPage() {
         return "forward:/static/index.html";
-    }
-
-    /** 注册表单提交（POST） */
-    @PostMapping("/register")
-    public String register(@RequestParam("username") String username,
-                           @RequestParam("password") String password,
-                           @RequestParam(value = "nickname", required = false) String nickname,
-                           @RequestParam(value = "avatar", required = false) MultipartFile avatar,
-                           @RequestParam(value = "intro", required = false) String intro) {
-
-        // 1. 上传头像
-        String avatarPath = null;
-        if (avatar != null && !avatar.isEmpty()) {
-            try {
-                avatarPath = fileService.upload(avatar, "avatars");
-            } catch (Exception e) {
-                return "redirect:/register?error=" + encode("头像上传失败: " + e.getMessage());
-            }
-        }
-
-        // 2. 构建用户对象
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setNickname(nickname);
-        user.setIntro(intro);
-        user.setAvatar(avatarPath);
-
-        // 3. 注册
-        int result = userService.register(user);
-
-        if (result == -1) {
-            return "redirect:/register?error=" + encode("注册信息不合法，请检查输入");
-        }
-        if (result == 0) {
-            return "redirect:/register?error=" + encode("用户名已被占用");
-        }
-
-        return "redirect:/login?success=" + encode("注册成功，请登录");
     }
 
     // ==================== 退出登录 ====================
@@ -117,7 +46,6 @@ public class PageController {
 
     // ==================== 个人主页 ====================
 
-    /** 个人主页：我的游记 / 收藏 / 信息编辑 */
     @GetMapping("/profile")
     public String profilePage(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -129,7 +57,6 @@ public class PageController {
 
     // ==================== 管理员：目的地管理 ====================
 
-    /** 目的地管理：表格 + 增删改 */
     @GetMapping("/admin/destinations")
     public String adminDestinationsPage(HttpSession session) {
         if (!isAdmin(session)) {
@@ -140,7 +67,6 @@ public class PageController {
 
     // ==================== 管理员：标签管理 ====================
 
-    /** 标签管理：列表 + 增删 */
     @GetMapping("/admin/tags")
     public String adminTagsPage(HttpSession session) {
         if (!isAdmin(session)) {

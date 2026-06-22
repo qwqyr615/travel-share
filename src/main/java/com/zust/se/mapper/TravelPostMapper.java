@@ -8,6 +8,16 @@ import java.util.List;
 @Mapper
 public interface TravelPostMapper {
     //查个体
+    @Results(id = "postMap", value = {
+        @Result(property = "cover_image", column = "cover_image"),
+        @Result(property = "user_id", column = "user_id"),
+        @Result(property = "destination_id", column = "destination_id"),
+        @Result(property = "travel_days", column = "travel_days"),
+        @Result(property = "travel_date", column = "travel_date"),
+        @Result(property = "view_count", column = "view_count"),
+        @Result(property = "created_at", column = "created_at"),
+        @Result(property = "updated_at", column = "updated_at")
+    })
     @Select("SELECT * FROM t_travel_post WHERE id=#{id}")
     Post findById(Integer id);
 
@@ -29,6 +39,12 @@ public interface TravelPostMapper {
 
     @Update("UPDATE t_travel_post SET view_count = view_count + 1 WHERE id = #{id}")
     int incrementViewCount(Integer id);
+
+    //查询我的游记
+    @ResultMap("postMap")
+    @Select("SELECT * FROM t_travel_post WHERE user_id=#{userId} ORDER BY created_at DESC")
+    List<Post> findByUserId(Integer userId);
+
     //查询游记列表
     List<Post> findByCondition(@Param("keyword")String keyword,
                                @Param("destination_id") Integer destination_id,

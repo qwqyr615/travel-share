@@ -68,6 +68,11 @@ public class TravelPostServiceImpl implements TravelPostService {
     }
 
     @Override
+    public List<Post> findByUserId(Integer userId) {
+        return travelPostMapper.findByUserId(userId);
+    }
+
+    @Override
     public Post findById(Integer id) {
         Post post = travelPostMapper.findById(id);
         if (post != null) {

@@ -1,0 +1,72 @@
+﻿:root {
+  /* ---- Palette ---- */
+  --color-parchment:       #f5f4ed;
+  --color-ivory:           #faf9f5;
+  --color-white:           #ffffff;
+  --color-warm-sand:       #e8e6dc;
+  --color-border-cream:    #f0eee6;
+  --color-border-warm:     #e8e6dc;
+
+  --color-terracotta:      #c96442;
+  --color-coral:           #d97757;
+  --color-error-crimson:   #b53333;
+
+  --color-near-black:      #141413;
+  --color-charcoal-warm:   #4d4c48;
+  --color-olive-gray:      #5e5d59;
+  --color-stone-gray:      #87867f;
+  --color-warm-silver:     #b0aea5;
+
+  --color-dark-surface:    #30302e;
+  --color-deep-dark:       #141413;
+
+  --color-ring-warm:       #d1cfc5;
+
+  --shadow-ring:           0px 0px 0px 1px var(--color-ring-warm);
+  --shadow-ring-subtle:    0px 0px 0px 1px var(--color-border-cream);
+  --shadow-whisper:        0px 4px 24px rgba(0,0,0,0.05);
+  --shadow-elevated:       0px 8px 32px rgba(0,0,0,0.08);
+
+  --font-serif:            'Lora', 'Playfair Display', Georgia, serif;
+  --font-sans:             'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:             'JetBrains Mono', 'Fira Code', monospace;
+
+  --fs-display:            clamp(2.25rem, 5vw, 4rem);
+  --fs-headline-1:         clamp(1.75rem, 3vw, 2.5rem);
+  --fs-headline-2:         clamp(1.35rem, 2vw, 1.75rem);
+  --fs-headline-3:         1.15rem;
+  --fs-body:               0.95rem;
+  --fs-small:              0.85rem;
+  --fs-tiny:               0.75rem;
+
+  --lh-display:            1.10;
+  --lh-headline:           1.25;
+  --lh-body:               1.60;
+
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  --space-2xl: 64px;
+
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   32px;
+
+  --container-max: 1200px;
+  --container-narrow: 720px;
+}
+
+[data-theme="dark"] {
+  --color-parchment:       #141413;
+  --color-ivory:           #1a1a18;
+  --color-near-black:      #f5f4ed;
+  --color-charcoal-warm:   #b0aea5;
+  --color-olive-gray:      #87867f;
+  --color-stone-gray:      #5e5d59;
+  --color-border-cream:    #30302e;
+  --color-border-warm:     #3d3d3a;
+  --color-warm-sand:       #30302e;
+}

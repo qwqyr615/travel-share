@@ -2,13 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zust.se.mapper.TravelPostMapper">
+    <resultMap id="postResultMap" type="com.zust.se.model.Post">
+        <result property="cover_image" column="cover_image"/>
+        <result property="user_id" column="user_id"/>
+        <result property="destination_id" column="destination_id"/>
+        <result property="travel_days" column="travel_days"/>
+        <result property="travel_date" column="travel_date"/>
+        <result property="view_count" column="view_count"/>
+        <result property="created_at" column="created_at"/>
+        <result property="updated_at" column="updated_at"/>
+    </resultMap>
+
     <sql id="postColumns">
         p.id, p.title, p.summary, p.content, p.cover_image,
     p.user_id, p.destination_id, p.travel_days, p.travel_date,
     p.budget, p.view_count, p.status, p.created_at, p.updated_at
     </sql>
 <!-- 查询游记列表   -->
-    <select id="findByCondition" resultType="com.zust.se.model.Post">
+    <select id="findByCondition" resultMap="postResultMap">
         SELECT <include refid="postColumns"/>
         FROM t_travel_post p
         <where>

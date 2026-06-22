@@ -2,12 +2,21 @@ package com.zust.se.controller;
 
 import com.zust.se.model.User;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 /**
  * 页面路由控制器：所有 GET 请求转发到 React SPA，由前端 React Router 渲染
@@ -88,11 +97,41 @@ public class PageController {
     // ==================== SPA 兜底路由 ====================
 
     @RequestMapping({
-        "/{segment:^(?!api$)(?!static$)[^\\.]+}",
-        "/{segment:^(?!api$)(?!static$)[^\\.]+}/**"
+        "/{segment:^(?!api$)(?!static$)(?!uploads$)[^\\.]+}",
+        "/{segment:^(?!api$)(?!static$)(?!uploads$)[^\\.]+}/**"
     })
     public String forwardSpa() {
         return "forward:/static/index.html";
+    }
+
+    // ==================== 上传文件静态访问兜底 ====================
+
+    @GetMapping("/uploads/{category}/{filename:.+}")
+    public ResponseEntity<Resource> serveUpload(@PathVariable String category,
+                                                @PathVariable String filename) {
+        if (!Set.of("avatars", "covers", "images").contains(category)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            Path filePath = Paths.get(System.getProperty("user.dir"), "src", "main", "webapp", "uploads", category, filename);
+            if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Resource resource = new UrlResource(filePath.toUri());
+            String contentType = Files.probeContentType(filePath);
+            MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+            if (contentType != null && !contentType.isBlank()) {
+                mediaType = MediaType.parseMediaType(contentType);
+            }
+
+            return ResponseEntity.ok()
+                .contentType(mediaType)
+                .body(resource);
+        } catch (Exception ignored) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // ==================== 工具方法 ====================

@@ -3,9 +3,12 @@ package com.zust.se.controller;
 import com.zust.se.common.PageResult;
 import com.zust.se.common.Result;
 import com.zust.se.model.Post;
+import com.zust.se.model.User;
 import com.zust.se.service.TravelPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -23,6 +26,16 @@ public class TravelPostController {
                                          @RequestParam(defaultValue = "1") int page,
                                          @RequestParam(defaultValue = "10") int size) {
         return Result.success(travelPostService.findByCondition(keyword, destination_id, tag_id, status, page, size));
+    }
+
+    /** 我的游记 */
+    @GetMapping("/my")
+    public Result<List<Post>> myPosts(jakarta.servlet.http.HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return Result.error(401, "请先登录");
+        }
+        return Result.success(travelPostService.findByUserId(loginUser.getId()));
     }
 
     /** 游记详情（浏览量 +1） */

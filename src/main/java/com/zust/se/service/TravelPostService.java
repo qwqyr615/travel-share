@@ -19,6 +19,9 @@ public interface TravelPostService {
     Post findById(Integer id);
 
     /** 分页搜索 */
+    List<Post> findByUserId(Integer userId);
+
+    /** 分页搜索 */
     PageResult<Post> findByCondition(String keyword,
                                      Integer destination_id,
                                      Integer tag_id,

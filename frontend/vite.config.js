@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: '/static/',
+  base: mode === 'production' ? '/static/' : '/',
   build: {
     outDir: '../src/main/webapp/static',
     emptyOutDir: true,
@@ -11,7 +11,13 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api': 'http://localhost:8080',
-    }
-  }
-})
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/uploads': {
+        target: 'http://localhost:8080',
+      },
+    },
+  },
+}))

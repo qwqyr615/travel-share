@@ -1,0 +1,478 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "旅游游记分享平台 API 测试集",
+    "version": "1.1.0",
+    "description": "游记CRUD + 文件上传 + 标签管理 + 收藏管理"
+  },
+  "servers": [
+    { "url": "http://localhost:8080", "description": "本地 Tomcat" }
+  ],
+  "paths": {
+    "/api/posts": {
+      "get": {
+        "summary": "📋 游记列表（分页+搜索）",
+        "operationId": "listPosts",
+        "parameters": [
+          { "name": "keyword", "in": "query", "description": "搜索关键词（匹配标题+摘要）", "required": false, "schema": { "type": "string" }, "example": "杭州" },
+          { "name": "destination_id", "in": "query", "description": "目的地ID", "required": false, "schema": { "type": "integer" } },
+          { "name": "tag_id", "in": "query", "description": "标签ID（筛选含此标签的游记）", "required": false, "schema": { "type": "integer" } },
+          { "name": "status", "in": "query", "description": "状态筛选：published / draft", "required": false, "schema": { "type": "string", "default": "published" } },
+          { "name": "page", "in": "query", "description": "页码，从1开始", "required": false, "schema": { "type": "integer", "default": 1 } },
+          { "name": "size", "in": "query", "description": "每页条数", "required": false, "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "total": 25,
+                    "page": 1,
+                    "size": 10,
+                    "list": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "📝 发布游记",
+        "operationId": "createPost",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "title": "我的杭州三日游",
+                "summary": "这是一次难忘的旅行...",
+                "content": "<h1>Day 1</h1><p>今天去了西湖...</p>",
+                "cover_image": "/uploads/posts/xxx.jpg",
+                "user_id": 1,
+                "destination_id": 1,
+                "travel_days": 3,
+                "travel_date": "2026-05-15",
+                "budget": 3000.00,
+                "tag_ids": [1, 3]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "返回新游记ID",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "success", "data": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{id}": {
+      "get": {
+        "summary": "📖 游记详情（浏览量自动+1）",
+        "operationId": "getPostDetail",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 1 }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回游记对象",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "id": 1,
+                    "title": "我的杭州三日游",
+                    "summary": "这是一次难忘的旅行...",
+                    "content": "<h1>Day 1</h1>...",
+                    "cover_image": "/uploads/posts/xxx.jpg",
+                    "user_id": 1,
+                    "destination_id": 1,
+                    "travel_days": 3,
+                    "travel_date": "2026-05-15",
+                    "budget": 3000.00,
+                    "view_count": 128,
+                    "status": "published",
+                    "created_at": "2026-05-20T10:30:00",
+                    "updated_at": null,
+                    "tag_ids": null
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "游记不存在",
+            "content": {
+              "application/json": {
+                "example": { "code": 404, "message": "游记不存在", "data": null }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "✏️ 编辑游记（同时刷新标签关联）",
+        "operationId": "updatePost",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 1 }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "title": "我的杭州三日游（更新版）",
+                "summary": "更新后的摘要...",
+                "content": "<h1>Day 1</h1><p>更新后的内容...</p>",
+                "cover_image": "/uploads/posts/xxx.jpg",
+                "user_id": 1,
+                "destination_id": 1,
+                "travel_days": 4,
+                "travel_date": "2026-05-15",
+                "budget": 3500.00,
+                "tag_ids": [1, 2, 4]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "更新成功", "data": null }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "🗑️ 删除游记",
+        "operationId": "deletePost",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 1 }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "删除成功", "data": null }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/upload/cover": {
+      "post": {
+        "summary": "🖼️ 上传游记封面图",
+        "operationId": "uploadCover",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary", "description": "图片文件（jpg/png/gif/webp，≤20MB）" }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "返回图片URL",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "success", "data": "/uploads/covers/uuid.png" }
+              }
+            }
+          },
+          "400": {
+            "description": "上传失败",
+            "content": {
+              "application/json": {
+                "example": { "code": 400, "message": "仅支持 jpg/png/gif/webp 格式", "data": null }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/upload/image": {
+      "post": {
+        "summary": "🖼️ 上传游记内容图片（富文本编辑器用）",
+        "operationId": "uploadImage",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary", "description": "图片文件（jpg/png/gif/webp，≤20MB）" }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "返回图片URL",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "success", "data": "/uploads/images/uuid.png" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "tags": ["标签管理"],
+        "summary": "🏷️ 标签列表",
+        "operationId": "listTags",
+        "responses": {
+          "200": {
+            "description": "返回全部标签",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": [
+                    { "id": 1, "name": "美食" },
+                    { "id": 2, "name": "风景" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["标签管理"],
+        "summary": "➕ 新增标签",
+        "operationId": "addTag",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": { "name": "骑行" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "添加成功",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "添加成功", "data": null }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tags/{id}": {
+      "put": {
+        "tags": ["标签管理"],
+        "summary": "✏️ 编辑标签",
+        "operationId": "updateTag",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 1 }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": { "name": "美食（已编辑）" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "更新成功", "data": null }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["标签管理"],
+        "summary": "🗑️ 删除标签",
+        "operationId": "deleteTag",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 15 }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "删除成功", "data": null }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/favorite/{postId}": {
+      "post": {
+        "tags": ["收藏管理"],
+        "summary": "⭐ 收藏游记",
+        "operationId": "favoritePost",
+        "parameters": [
+          { "name": "postId", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 10 }
+        ],
+        "responses": {
+          "200": {
+            "description": "收藏成功",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "收藏成功", "data": null }
+              }
+            }
+          },
+          "400": {
+            "description": "已收藏过",
+            "content": {
+              "application/json": {
+                "example": { "code": 400, "message": "已收藏过该游记", "data": null }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "example": { "code": 401, "message": "请先登录", "data": null }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["收藏管理"],
+        "summary": "❌ 取消收藏",
+        "operationId": "unfavoritePost",
+        "parameters": [
+          { "name": "postId", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 10 }
+        ],
+        "responses": {
+          "200": {
+            "description": "取消成功",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "取消收藏成功", "data": null }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "example": { "code": 401, "message": "请先登录", "data": null }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/favorite/check/{postId}": {
+      "get": {
+        "tags": ["收藏管理"],
+        "summary": "🔍 检查是否已收藏（前端判断星标点亮状态）",
+        "operationId": "checkFavorite",
+        "parameters": [
+          { "name": "postId", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 10 }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回 true/false",
+            "content": {
+              "application/json": {
+                "example": { "code": 200, "message": "success", "data": true }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "example": { "code": 401, "message": "请先登录", "data": null }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/favorite/list": {
+      "get": {
+        "tags": ["收藏管理"],
+        "summary": "📋 我的收藏列表（分页+联查游记信息）",
+        "operationId": "listFavorites",
+        "parameters": [
+          { "name": "page", "in": "query", "description": "页码", "required": false, "schema": { "type": "integer", "default": 1 } },
+          { "name": "size", "in": "query", "description": "每页条数", "required": false, "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "total": 3,
+                    "page": 1,
+                    "size": 10,
+                    "list": [
+                      {
+                        "id": 1,
+                        "userId": 13,
+                        "postId": 10,
+                        "createdAt": "2026-06-22T10:00:00",
+                        "postTitle": "我的杭州三日游",
+                        "postCoverImage": "/uploads/posts/xxx.jpg",
+                        "postSummary": "这是一次难忘的旅行..."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "example": { "code": 401, "message": "请先登录", "data": null }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

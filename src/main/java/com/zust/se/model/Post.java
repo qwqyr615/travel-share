@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -26,4 +27,5 @@ public class Post {
     private String status;
     private Date created_at;
     private Date updated_at;
+    private List<Integer> tag_ids; // 请求绑定用（标签ID列表），不映射数据库字段
 }

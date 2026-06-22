@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zust.se.mapper.FavoriteMapper">
+
+    <!-- 查收藏列表，联查游记标题、封面图、摘要 -->
+    <select id="findByUserId" resultType="com.zust.se.model.Favorite">
+        SELECT f.id, f.user_id, f.post_id, f.created_at,
+               p.title     AS post_title,
+               p.cover_image AS post_cover_image,
+               p.summary   AS post_summary
+        FROM t_favorite f
+        LEFT JOIN t_travel_post p ON f.post_id = p.id
+        WHERE f.user_id = #{userId}
+        ORDER BY f.created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+</mapper>
